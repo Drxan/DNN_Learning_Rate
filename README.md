@@ -18,7 +18,7 @@ CircularLR类提供两种循环学习率实现
   即训练过程中base_lr和max_lr保持不变
 * 衰减的循环学习率
   每decay_freq个周期后，对max_lr进行衰减更新，max_lr=max(max_lr,base_lr)
-其他不同的学习率更新策略都可以继承LR_Updater类进行具体实现。
+* 其他不同的学习率更新策略都可以继承LR_Updater类进行具体实现。
 
 ## 2 代码解释
 * PerformanceLogger类
