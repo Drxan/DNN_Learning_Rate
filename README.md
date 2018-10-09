@@ -11,13 +11,14 @@ self-defined callbacks based on keras for searching and adjusting learing rate d
 理想的学习率应该在损失下降的区间。
 LR_Finder类用来搜索学习率，只实现了学习率的线性增长。
 
-## 1.2 调整学习率
+### 1.2 调整学习率
 主要参考论文[《Cyclical Learning Rates for Training Neural Networks》](https://arxiv.org/pdf/1506.01186.pdf)提出的循环学习率策略。
 CircularLR类提供两种循环学习率实现
 * 固定范围的循环学习率
   即训练过程中base_lr和max_lr保持不变
 * 衰减的循环学习率
   每decay_freq个周期后，对max_lr进行衰减更新，max_lr=max(max_lr,base_lr)
+其他不同的学习率更新策略都可以继承LR_Updater类进行具体实现。
 
 ## 2 代码解释
 * PerformanceLogger类
