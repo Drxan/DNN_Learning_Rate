@@ -21,6 +21,6 @@ CircularLR类提供两种循环学习率实现
 
 ## 2 代码解释
 * PerformanceLogger类
-  该类类似keras中的History类。除了在每个epoch后记录相关指标外，还记录了每个batch后的相关性能指标、学习率等。
+  该类类似keras中的History类。除了在每个epoch后记录相关指标外，还记录了每个batch后的相关性能指标、学习率等。该类及其子类对象在记录这些指标后可以把存下来，以便分析模型性能，为模型调优做参考。
 * LR_Updater类
   PerformanceLogger类的子类，抽象类。主要提供对学习率的更新功能。其中的抽象方法`def update_lr(self)`必须由其子类实现具体的学习率更新策略。
