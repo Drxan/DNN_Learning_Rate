@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2018/9/29 17:25
 # @Author  : Drxan
-# @Email   : yuwei8905@126.com
+# @Email   : 
 # @File    : my_callbacks.py
 # @Software: PyCharm
 from keras.callbacks import *
@@ -16,35 +16,6 @@ def in_ipynb():
         return cls == 'ZMQInteractiveShell'
     except NameError:
         return False
-
-
-class CallbackT(Callback):
-    def __init__(self):
-        self.epoch_begin_logs = []
-        self.epoch_end_logs = []
-        self.train_begin_logs = []
-        self.train_end_logs = []
-        self.batch_begin_logs = []
-        self.batch_end_logs = []
-        super().__init__()
-
-    def on_epoch_begin(self, epoch, logs=None):
-        self.epoch_begin_logs.append([epoch, logs])
-
-    def on_epoch_end(self, epoch, logs=None):
-        self.epoch_end_logs.append([epoch, logs])
-
-    def on_batch_begin(self, batch, logs=None):
-        self.batch_begin_logs.append([batch, logs])
-
-    def on_batch_end(self, batch, logs=None):
-        self.batch_end_logs.append([batch, logs])
-
-    def on_train_begin(self, logs=None):
-        self.train_begin_logs.append(logs)
-
-    def on_train_end(self, logs=None):
-        self.train_end_logs.append(logs)
 
 
 class PerformanceLogger(Callback):
