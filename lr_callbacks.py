@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2018/9/29 17:25
 # @Author  : Drxan
-# @Email   : 
+# @Email   :
 # @File    : my_callbacks.py
 # @Software: PyCharm
 from keras.callbacks import *
@@ -49,7 +49,7 @@ class PerformanceLogger(Callback):
         lr = float(K.get_value(self.model.optimizer.lr))
         self.epoch_history.setdefault('lrs', []).append(lr)
 
-    def plot_loss(self, n_skip=0, n_skip_end=0, x_axis='lrs'):
+    def plot_loss(self, n_skip=0, n_skip_end=0, x_axis='lrs', x_log=False):
         '''
         Plots the loss function with respect to learning rate, in log scale.
         '''
@@ -57,7 +57,8 @@ class PerformanceLogger(Callback):
         plt.xlabel(x_axis)
         plt.plot(self.batch_history[x_axis][n_skip:-(n_skip_end+1)],
                  self.batch_history['loss'][n_skip:-(n_skip_end+1)])
-        # plt.xscale('log')
+        if x_log:
+            plt.xscale('log')
         plt.show()
 
     def plot_lr(self):
@@ -107,14 +108,14 @@ class LR_Finder(LR_Updater):
     Helps you find an optimal learning rate for a model, as per suggetion of 2015 CLR paper.
     Learning rate is increased in linear or log scale, depending on user input, and the result of the loss funciton is retained and can be plotted later.
     '''
-    def __init__(self, nb, base_lr=1e-5, max_lr=10, verbose=0):
-        assert nb >= 2
+    def __init__(self, batch_num, base_lr=1e-5, max_lr=10, verbose=0):
+        assert batch_num >= 2
         assert max_lr > base_lr
         super(LR_Finder, self).__init__(base_lr, verbose)
         self.max_lr = max_lr
-        self.nb = nb
         self.stop_dv = True
-        self.lr_interval = (max_lr - base_lr) / (nb - 1)
+        self.lr_interval = (max_lr - base_lr) / (batch_num - 1)
+        print('batch_num:{0}, interval:{1}'.format(batch_num, self.lr_interval))
 
     def update_lr(self):
         if not hasattr(self.model.optimizer, 'lr'):
@@ -130,12 +131,52 @@ class LR_Finder(LR_Updater):
                   'rate to %s.' % (self.batch_num + 1, lr))
 
 
+class LR_Finder2(LR_Updater):
+    '''
+    Helps you find an optimal learning rate for a model, as per suggetion of 2015 CLR paper.
+    Learning rate is increased in linear or log scale, depending on user input, and the result of the loss funciton is retained and can be plotted later.
+    [cite:https://mxnet.incubator.apache.org/tutorials/gluon/learning_rate_finder.html]
+    '''
+    def __init__(self, base_lr=1e-5, lr_multiplier=1.1, alpha=0.3, verbose=0):
+        assert lr_multiplier > 0
+        super(LR_Finder2, self).__init__(base_lr, verbose)
+        self.lr_multiplier = lr_multiplier
+        self.alpha = alpha
+        self.first_loss = None
+        self.move_avg = None
+
+    def update_lr(self):
+        if not hasattr(self.model.optimizer, 'lr'):
+            raise ValueError('Optimizer must have a "lr" attribute.')
+        lr = float(K.get_value(self.model.optimizer.lr))
+        lr = lr * self.lr_multiplier
+        if not isinstance(lr, (float, np.float32, np.float64)):
+            raise ValueError('The output of the "schedule" function '
+                             'should be float.')
+        K.set_value(self.model.optimizer.lr, lr)
+        if self.verbose > 0:
+            print('\nBatch %05d: LR_Finder reducing learning '
+                  'rate to %s.' % (self.batch_num + 1, lr))
+
+    def on_batch_end(self, batch, logs=None):
+        super().on_batch_end(batch, logs)
+        current_loss = logs['loss']
+        if self.first_loss is None:
+            self.first_loss = current_loss
+        if self.move_avg is None:
+            self.move_avg = current_loss
+        else:
+            self.move_avg = self.move_avg * self.alpha + current_loss * (1-self.alpha)
+        if self.move_avg > 2*self.first_loss:
+            self.model.stop_training = True
+
+
 class CircularLR(LR_Updater):
     '''
      A learning rate updater that implements the CircularLearningRate (CLR) scheme.
     Learning rate is increased then decreased linearly.
     '''
-    def __init__(self, step_size=128, base_lr=1e-5, max_lr=10, decay=0.9, decay_type=None, decay_freq=1, verbose=0):
+    def __init__(self, step_size=128, base_lr=1e-5, max_lr=0.5, decay=0.9, decay_type='exp', decay_freq=1, verbose=0):
         assert max_lr > base_lr
         if decay_type not in ['exp', None]:
             raise ValueError('Invalid decay type. '
@@ -175,6 +216,6 @@ class CircularLR(LR_Updater):
         K.set_value(self.model.optimizer.lr, lr)
         if self.verbose > 0:
             print('\nBatch %05d: CircularLR setting learning '
-                  'rate to %s.' % (self.batch_num + 1, lr))
+'rate to %s.' % (self.batch_num + 1, lr))
 
 
