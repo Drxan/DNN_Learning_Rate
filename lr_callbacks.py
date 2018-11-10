@@ -167,6 +167,7 @@ class LR_Finder2(LR_Updater):
             self.move_avg = current_loss
         else:
             self.move_avg = self.move_avg * self.alpha + current_loss * (1-self.alpha)
+        # We stop when the smoothed average of the loss exceeds twice the initial loss
         if self.move_avg > 2*self.first_loss:
             self.model.stop_training = True
 
