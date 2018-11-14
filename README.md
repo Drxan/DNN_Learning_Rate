@@ -28,13 +28,13 @@ CircularLR类提供两种循环学习率实现
 
 ## 3 用法
 ### 3.1 学习率搜索 
-`lr_finder = LR_Finder(base_lr=1e-9, lr_multiplier=1.06)
+lr_finder = LR_Finder(base_lr=1e-9, lr_multiplier=1.06)
 cbks = [lr_finder]
-train_hist = model.fit(train_X, train_y, batch_size=batch_size, epochs=1000, verbose=2, validation_data=(val_X, val_y), callbacks=cbks)` 
-* (1) 利用自带的绘图函数
-`lr_finder.plot_loss()` 
+train_hist = model.fit(train_X, train_y, batch_size=batch_size, epochs=1000, verbose=2, validation_data=(val_X, val_y), callbacks=cbks)  
+(1) 利用自带的绘图函数  
+  lr_finder.plot_loss() 
 
-* （2）自定义绘图函数 
+（2）自定义绘图函数  
 `def plot_lrs(hist, low=0, up=-1, marker='', x_log=True):
     print('iter_num:',len(hist['lrs']))
     plt.rcParams['figure.figsize']=(12,6)
