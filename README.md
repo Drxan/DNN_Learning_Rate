@@ -39,7 +39,7 @@ train_hist = model.fit(train_X, train_y, batch_size=batch_size, epochs=1000, ver
     print('iter_num:',len(hist['lrs']))
     plt.rcParams['figure.figsize']=(12,6)
     x = hist['lrs']
-    y = hist['loss']
+    y = copy.copy(hist['loss'])
     if moving_avg:
         ma = y[0]
         for i in range(len(y)):
