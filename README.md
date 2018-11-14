@@ -25,3 +25,35 @@ CircularLR类提供两种循环学习率实现
   该类类似keras中的History类。除了在每个epoch后记录相关指标外，还记录了每个batch后的相关性能指标、学习率等。该类及其子类对象在记录这些指标后可以把存下来，以便分析模型性能，为模型调优做参考。
 * LR_Updater类
   PerformanceLogger类的子类，抽象类。主要提供对学习率的更新功能。其中的抽象方法`def update_lr(self)`必须由其子类实现具体的学习率更新策略。
+
+## 3 用法
+### 3.1 学习率搜索
+lr_finder = LR_Finder(base_lr=1e-9, lr_multiplier=1.06)
+cbks = [lr_finder]
+train_hist = model.fit(train_X, train_y, batch_size=batch_size, epochs=1000, verbose=2, validation_data=(val_X, val_y), callbacks=cbks)
+(1) 利用自带的绘图函数
+lr_finder.plot_loss()
+
+（2）自定义绘图函数
+def plot_lrs(hist, low=0, up=-1, marker='', x_log=True):
+    print('iter_num:',len(hist['lrs']))
+    plt.rcParams['figure.figsize']=(12,6)
+    x = hist['lrs']
+    y = hist['loss']
+    plt.grid(axis='x')
+    plt.plot(x[low:up],y[low:up],ls='-',marker=marker)
+    # plt.xticks(rotation=30)
+    if x_log:
+        plt.xscale('log')
+    plt.xlabel('lrs')
+    plt.ylabel('loss')
+    plt.title('lr-loss')
+    
+ hist = lr_finder.batch_history
+ plot_lrs（hist）
+ 
+ ### 3.2 循环学习率设置
+ step_size 表示循环的半周期长度（mini_bath的数量)
+clr = CircularLR(step_size=step_size, base_lr=base_lr, max_lr=max_lr, decay=0.6, decay_type='exp')
+cbks = [clr]
+train_hist = model.fit(train_X, train_y, batch_size=batch_size, epochs=1000, verbose=2, validation_data=(val_X, val_y), callbacks=cbks)
