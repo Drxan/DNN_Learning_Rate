@@ -35,11 +35,16 @@ train_hist = model.fit(train_X, train_y, batch_size=batch_size, epochs=1000, ver
   lr_finder.plot_loss() 
 
 （2）自定义绘图函数  
-`def plot_lrs(hist, low=0, up=-1, marker='', x_log=True):
+`def plot_lrs(hist, low=0, up=-1, marker='', x_log=True, moving_avg=False, alpha=0.9):
     print('iter_num:',len(hist['lrs']))
     plt.rcParams['figure.figsize']=(12,6)
     x = hist['lrs']
     y = hist['loss']
+    if moving_avg:
+        ma = y[0]
+        for i in range(len(y)):
+            ma = ma*alpha + y[i]*(1-alpha)
+            y[i] = ma
     plt.grid(axis='x')
     plt.plot(x[low:up],y[low:up],ls='-',marker=marker)
     # plt.xticks(rotation=30)
@@ -48,9 +53,10 @@ train_hist = model.fit(train_X, train_y, batch_size=batch_size, epochs=1000, ver
     plt.xlabel('lrs')
     plt.ylabel('loss')
     plt.title('lr-loss')
+    return plt.xticks()
     
  hist = lr_finder.batch_history
- plot_lrs（hist）` 
+ plot_lrs（hist, moving_avg=True）` 
  
  ### 3.2 循环学习率设置 
  step_size 表示循环的半周期长度（mini_bath的数量)  
