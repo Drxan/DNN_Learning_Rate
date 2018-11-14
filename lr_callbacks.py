@@ -19,7 +19,7 @@ def in_ipynb():
 
 
 class PerformanceLogger(Callback):
-    """Callback that records events into a `PerformanceLogger` object at each batch.
+    """Callback that records logs into a `PerformanceLogger` object at the end of each batch.
     """
     def __init__(self):
         super(PerformanceLogger, self).__init__()
@@ -71,6 +71,10 @@ class PerformanceLogger(Callback):
 
 
 class LR_Updater(PerformanceLogger):
+    """
+      abstract class used to update learning rate at the end of each mini-batch, you must define your subclass inherited from 
+      this class, and implement the method update_lr().
+    """
     def __init__(self, base_lr=0.001, verbose=0):
         super(LR_Updater, self).__init__()
         self.base_lr = base_lr
@@ -104,34 +108,6 @@ class LR_Updater(PerformanceLogger):
 
 
 class LR_Finder(LR_Updater):
-    '''
-    Helps you find an optimal learning rate for a model, as per suggetion of 2015 CLR paper.
-    Learning rate is increased in linear or log scale, depending on user input, and the result of the loss funciton is retained and can be plotted later.
-    '''
-    def __init__(self, batch_num, base_lr=1e-5, max_lr=10, verbose=0):
-        assert batch_num >= 2
-        assert max_lr > base_lr
-        super(LR_Finder, self).__init__(base_lr, verbose)
-        self.max_lr = max_lr
-        self.stop_dv = True
-        self.lr_interval = (max_lr - base_lr) / (batch_num - 1)
-        print('batch_num:{0}, interval:{1}'.format(batch_num, self.lr_interval))
-
-    def update_lr(self):
-        if not hasattr(self.model.optimizer, 'lr'):
-            raise ValueError('Optimizer must have a "lr" attribute.')
-        lr = float(K.get_value(self.model.optimizer.lr))
-        lr = lr + self.lr_interval
-        if not isinstance(lr, (float, np.float32, np.float64)):
-            raise ValueError('The output of the "schedule" function '
-                             'should be float.')
-        K.set_value(self.model.optimizer.lr, lr)
-        if self.verbose > 0:
-            print('\nBatch %05d: LR_Finder reducing learning '
-                  'rate to %s.' % (self.batch_num + 1, lr))
-
-
-class LR_Finder2(LR_Updater):
     '''
     Helps you find an optimal learning rate for a model, as per suggetion of 2015 CLR paper.
     Learning rate is increased in linear or log scale, depending on user input, and the result of the loss funciton is retained and can be plotted later.
