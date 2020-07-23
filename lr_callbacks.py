@@ -115,7 +115,7 @@ class LR_Finder(LR_Updater):
     '''
     def __init__(self, base_lr=1e-5, lr_multiplier=1.1, alpha=0.3, verbose=0):
         assert lr_multiplier > 0
-        super(LR_Finder2, self).__init__(base_lr, verbose)
+        super(LR_Finder, self).__init__(base_lr, verbose)
         self.lr_multiplier = lr_multiplier
         self.alpha = alpha
         self.first_loss = None
